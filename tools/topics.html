@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>トピックページ｜asaHPエディター</title>
+<link rel="stylesheet" href="../css/editor-tools.css">
+<style>
+  :root {
+    --bg: #101010; --panel: #1a1a1a; --panel-2: #202020;
+    --border: #3a3a3a; --text: #e8e8e8; --dim: #9a9a9a; --accent: #ffffff;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", system-ui, sans-serif;
+  }
+  body { padding: 16px 16px 60px; }
+
+  .lead { color: var(--dim); font-size: 12px; margin: 0 0 18px; line-height: 1.8; }
+  .lead code { color: var(--text); }
+
+  section { margin-bottom: 26px; }
+  section h2 {
+    font-size: 13px; letter-spacing: 0.04em; margin: 0 0 10px;
+    padding-bottom: 6px; border-bottom: 1px solid var(--border); color: var(--text);
+  }
+
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 700px) { .grid2 { grid-template-columns: 1fr; } }
+
+  .field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; }
+  .field label { font-size: 11px; color: var(--dim); }
+  .field input[type="text"], .field input[type="number"], .field textarea, .field select {
+    background: var(--panel-2); border: 1px solid var(--border); color: var(--text);
+    padding: 7px 8px; border-radius: 3px; font-size: 13px; font-family: inherit; width: 100%;
+  }
+  .field textarea { min-height: 72px; resize: vertical; }
+
+  .item-card {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 4px;
+    padding: 12px; margin-bottom: 10px;
+  }
+  .item-head {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 8px; gap: 8px;
+  }
+  .item-head .badge { font-size: 11px; color: var(--dim); }
+  .item-head label { font-size: 12px; display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+</style>
+</head>
+<body>
+
+<p class="lead">
+  椅子横の飾り画像から開く「サロン広報」ページ（<code>topics.html</code>）の内容を編集します。
+  画像・音楽は「画像を選ぶ」「音声を選ぶ」から、パソコンの中のファイルを選べます。
+</p>
+
+<section>
+  <h2>ページタイトル</h2>
+  <div class="field"><input type="text" id="topicsTitle"></div>
+</section>
+
+<section>
+  <h2>ページ背景</h2>
+  <div class="grid2">
+    <div class="field">
+      <label for="topicsBg">背景画像（空欄なら紺色のグラデーションのみ）</label>
+      <input type="text" id="topicsBg" data-picker="images">
+    </div>
+    <div class="field">
+      <label for="topicsOverlay">背景を暗くする度合い（0〜1）</label>
+      <input type="number" id="topicsOverlay" min="0" max="1" step="0.05">
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>創作サロン・ぎんがむたんぽぽのロゴ</h2>
+  <div class="field">
+    <label for="topicsLogo">ロゴ画像（空欄ならロゴを出しません）</label>
+    <input type="text" id="topicsLogo" data-picker="images">
+  </div>
+  <div class="grid2">
+    <div class="field">
+      <label for="topicsLogoPosition">置き場所</label>
+      <select id="topicsLogoPosition">
+        <option value="title-top">タイトルの真上（中央）</option>
+        <option value="title-left">タイトルの左横に並べる</option>
+        <option value="page-bottom">ページのいちばん下（署名のように）</option>
+        <option value="watermark">背景に大きく薄く敷く（透かし）</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="topicsLogoWidth">ロゴの大きさ</label>
+      <input type="number" id="topicsLogoWidth" min="20" max="400" step="5">
+    </div>
+  </div>
+  <p class="lead" style="margin:0;">
+    大きさの数字は、透かし以外では「横はば何ピクセルか」、透かしのときは「画面の横はばの何％か」です。
+  </p>
+</section>
+
+<section>
+  <h2>サロンメンバー（最大3人）</h2>
+  <p class="lead" style="margin:0 0 10px;">
+    画像・リンク・紹介文・音楽タイトル・イメージ音楽（mp3など）を設定できます。
+    音楽は、ページで再生ボタンを押したときにはじめて読み込まれます。
+  </p>
+  <div id="memberList"></div>
+</section>
+
+<section>
+  <h2>最近のトピック（最大3記事）</h2>
+  <p class="lead" style="margin:0 0 10px;">
+    日付の新しい記事が自動でいちばん上に並び、その記事に「NEW」のワッペンが付きます。
+    日付は <code>2026-10-01</code> のような形式で入れてください。
+  </p>
+  <div id="articleList"></div>
+</section>
+
+<p class="lead">
+  編集した内容は、asaHPエディター右上の「変更をすべて保存」から保存してください。
+</p>
+
+<script src="../data/config.js"></script>
+<script src="../js/save-api.js"></script>
+<script src="../js/file-picker.js"></script>
+<script src="../js/config-serializer.js"></script>
+<script src="../js/topics-editor.js"></script>
+</body>
+</html>

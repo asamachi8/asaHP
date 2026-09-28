@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CONTACT｜幻想肖像画美術館</title>
+<meta name="description" content="幻想肖像画美術館 ポートフォリオへのお問い合わせ">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230f141d'/%3E%3Crect x='7' y='7' width='18' height='18' fill='none' stroke='%23cfa958' stroke-width='2'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body class="contact-body">
+
+<div class="contact-page">
+
+  <nav class="site-nav" aria-label="サイト内ナビゲーション">
+    <a href="index.html">HOME</a>
+    <a href="about.html">ABOUT</a>
+    <a href="contact.html" class="is-current">CONTACT</a>
+  </nav>
+
+  <h1>CONTACT</h1>
+  <p class="contact-lead" id="contactLead">お仕事のご依頼・お問い合わせは、以下のフォームよりお送りください。</p>
+
+  <!-- Googleフォーム連携をオフにしているときの案内 -->
+  <p class="contact-closed" id="contactClosed" hidden></p>
+
+  <form class="contact-form" id="contactForm" novalidate>
+
+    <div id="contactFields"></div>
+
+    <button type="submit" class="form-submit" id="formSubmitBtn">送信</button>
+    <p class="form-status" id="formStatus" role="status" aria-live="polite"></p>
+
+  </form>
+
+</div>
+
+<script src="data/config.js"></script>
+<script src="js/common.js"></script>
+<script src="js/contact.js"></script>
+</body>
+</html>

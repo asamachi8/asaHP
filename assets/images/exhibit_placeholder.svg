@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 480" role="img" aria-label="展示画像（仮）">
+  <rect width="480" height="480" fill="#171f2b"/>
+  <rect x="16" y="16" width="448" height="448" fill="none" stroke="#8a6a2f" stroke-width="2" stroke-dasharray="10 8"/>
+  <path d="M60 380 L180 220 L260 320 L320 250 L420 380 Z" fill="none" stroke="#6f5527" stroke-width="2"/>
+  <circle cx="150" cy="140" r="34" fill="none" stroke="#6f5527" stroke-width="2"/>
+  <text x="240" y="440" text-anchor="middle" font-family="Georgia, 'Hiragino Mincho ProN', serif" font-size="20" fill="#cfa958">展示画像プレースホルダー</text>
+</svg>

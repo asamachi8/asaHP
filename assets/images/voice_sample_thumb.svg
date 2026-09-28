@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 270" role="img" aria-label="ボイスサンプル動画サムネイル（仮）">
+  <rect width="480" height="270" fill="#171f2b"/>
+  <rect x="14" y="14" width="452" height="242" fill="none" stroke="#8a6a2f" stroke-width="2" stroke-dasharray="10 8"/>
+  <circle cx="240" cy="135" r="36" fill="none" stroke="#cfa958" stroke-width="2"/>
+  <path d="M228 118 L262 135 L228 152 Z" fill="#cfa958"/>
+  <text x="240" y="230" text-anchor="middle" font-family="Georgia, 'Hiragino Mincho ProN', serif" font-size="16" fill="#8a8f97">動画サムネイル プレースホルダー</text>
+</svg>

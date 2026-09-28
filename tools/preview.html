@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>表示確認｜asaHPエディター</title>
+<style>
+  :root {
+    --bg: #101010; --panel: #1a1a1a; --border: #3a3a3a; --text: #e8e8e8; --dim: #9a9a9a; --accent: #ffffff;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; height: 100%; background: var(--bg); color: var(--text);
+    font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", system-ui, sans-serif;
+  }
+  body { display: flex; flex-direction: column; }
+
+  .toolbar {
+    flex: none; display: flex; flex-wrap: wrap; gap: 16px; align-items: center;
+    padding: 12px 16px; border-bottom: 1px solid var(--border); background: var(--panel);
+  }
+  .tabs { display: flex; gap: 6px; }
+  .tabs button {
+    font-size: 12px; padding: 7px 14px; background: #202020; color: var(--text);
+    border: 1px solid var(--border); border-radius: 3px; cursor: pointer; font-family: inherit;
+  }
+  .tabs button.active { background: var(--accent); color: #000; border-color: var(--accent); }
+  .tabs button:hover { border-color: var(--accent); }
+  .reload { margin-left: auto; }
+
+  .stage {
+    flex: 1; min-height: 0; overflow: auto; display: flex;
+    justify-content: center; padding: 24px; background: #000;
+  }
+  .device-wrap { position: relative; flex: none; }
+  .device {
+    position: absolute; top: 0; left: 0; transform-origin: top left;
+    background: #000; box-shadow: 0 0 0 1px var(--border), 0 10px 30px rgba(0,0,0,.6);
+  }
+  .device iframe { display: block; width: 100%; height: 100%; border: 0; background: #fff; }
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="tabs" id="pageTabs">
+    <button type="button" data-page="../index.html" class="active">ホーム</button>
+    <button type="button" data-page="../about.html">自己紹介</button>
+    <button type="button" data-page="../contact.html">コンタクト</button>
+    <button type="button" data-page="../topics.html">トピック</button>
+  </div>
+  <div class="tabs" id="deviceTabs">
+    <button type="button" data-device="mobile" class="active">スマホ表示</button>
+    <button type="button" data-device="pc">PC表示</button>
+  </div>
+  <button type="button" class="tabs reload" id="reloadBtn">再読み込み</button>
+</div>
+
+<div class="stage" id="stage">
+  <div class="device-wrap" id="deviceWrap">
+    <div class="device" id="device">
+      <iframe id="frame" src="../index.html"></iframe>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var SIZES = {
+    mobile: { w: 390, h: 844 },
+    pc: { w: 1280, h: 800 }
+  };
+  var device = "mobile";
+  var page = "../index.html";
+
+  var stage = document.getElementById("stage");
+  var deviceWrap = document.getElementById("deviceWrap");
+  var deviceEl = document.getElementById("device");
+  var frame = document.getElementById("frame");
+
+  function layout() {
+    var size = SIZES[device];
+    var avail = stage.clientWidth - 48;
+    var scale = Math.min(1, avail / size.w);
+    deviceEl.style.width = size.w + "px";
+    deviceEl.style.height = size.h + "px";
+    deviceEl.style.transform = "scale(" + scale + ")";
+    deviceWrap.style.width = (size.w * scale) + "px";
+    deviceWrap.style.height = (size.h * scale) + "px";
+  }
+
+  document.getElementById("pageTabs").addEventListener("click", function (e) {
+    var btn = e.target.closest("button[data-page]");
+    if (!btn) return;
+    document.querySelectorAll("#pageTabs button").forEach(function (b) { b.classList.remove("active"); });
+    btn.classList.add("active");
+    page = btn.dataset.page;
+    frame.src = page;
+  });
+
+  document.getElementById("deviceTabs").addEventListener("click", function (e) {
+    var btn = e.target.closest("button[data-device]");
+    if (!btn) return;
+    document.querySelectorAll("#deviceTabs button").forEach(function (b) { b.classList.remove("active"); });
+    btn.classList.add("active");
+    device = btn.dataset.device;
+    layout();
+  });
+
+  document.getElementById("reloadBtn").addEventListener("click", function () {
+    frame.src = page + "?t=" + Date.now();
+  });
+
+  window.addEventListener("resize", layout);
+  layout();
+})();
+</script>
+</body>
+</html>

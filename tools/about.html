@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>自己紹介ページ｜asaHPエディター</title>
+<link rel="stylesheet" href="../css/editor-tools.css">
+<style>
+  :root {
+    --bg: #101010; --panel: #1a1a1a; --panel-2: #202020;
+    --border: #3a3a3a; --text: #e8e8e8; --dim: #9a9a9a; --accent: #ffffff;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", system-ui, sans-serif;
+  }
+  body { padding: 16px 16px 60px; }
+
+  .lead { color: var(--dim); font-size: 12px; margin: 0 0 18px; line-height: 1.8; }
+  .lead code { color: var(--text); }
+
+  .toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 18px 0; }
+  .btn {
+    font-size: 12px; padding: 7px 14px; background: var(--panel); color: var(--text);
+    border: 1px solid var(--border); border-radius: 3px; cursor: pointer; font-family: inherit;
+  }
+  .btn:hover { border-color: var(--accent); }
+  #status { font-size: 12px; color: var(--dim); }
+
+  section { margin-bottom: 26px; }
+  section h2 {
+    font-size: 13px; letter-spacing: 0.04em; margin: 0 0 10px;
+    padding-bottom: 6px; border-bottom: 1px solid var(--border); color: var(--text);
+  }
+
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 700px) { .grid2 { grid-template-columns: 1fr; } }
+
+  .field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; }
+  .field label { font-size: 11px; color: var(--dim); }
+  .field input[type="text"], .field input[type="number"], .field textarea, .field select {
+    background: var(--panel-2); border: 1px solid var(--border); color: var(--text);
+    padding: 7px 8px; border-radius: 3px; font-size: 13px; font-family: inherit; width: 100%;
+  }
+  .field textarea { min-height: 64px; resize: vertical; }
+
+  .profile-box, .item-card {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 4px;
+    padding: 12px; margin-bottom: 10px;
+  }
+  .item-card .item-head {
+    display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;
+  }
+  .item-head .badge { font-size: 11px; color: var(--dim); }
+  .item-head label { font-size: 12px; display: flex; align-items: center; gap: 6px; }
+
+  textarea#outputCode {
+    width: 100%; min-height: 220px; background: var(--panel-2); color: var(--text);
+    border: 1px solid var(--border); border-radius: 3px; padding: 12px; font-size: 12px;
+    font-family: Consolas, Menlo, monospace; white-space: pre;
+  }
+</style>
+</head>
+<body>
+
+<p class="lead">
+  自己紹介ページ（<code>about.html</code>）の内容を編集します。画像は
+  <code>assets/images/</code> に入れて、ファイル名を入力してください。
+</p>
+
+<section>
+  <h2>ページ背景</h2>
+  <div class="grid2">
+    <div class="field">
+      <label for="aboutBg">背景画像（空欄なら紺色のグラデーションのみ）</label>
+      <input type="text" id="aboutBg" placeholder="assets/images/about_bg.jpg" data-picker="images">
+    </div>
+    <div class="field">
+      <label for="aboutOverlay">背景を暗くする度合い（0〜1）</label>
+      <input type="number" id="aboutOverlay" min="0" max="1" step="0.05">
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>額縁と自己紹介の並び</h2>
+  <div class="field">
+    <label for="aboutLayout">配置</label>
+    <select id="aboutLayout">
+      <option value="vertical">縦に並べる（額縁の下に自己紹介）</option>
+      <option value="side-left">横に並べる（額縁が左・自己紹介が右）</option>
+      <option value="side-right">横に並べる（額縁が右・自己紹介が左）</option>
+    </select>
+  </div>
+  <p class="lead" style="margin:0;">
+    横並びにしても、スマホなど画面が狭いときは自動で縦並びになります。
+  </p>
+</section>
+
+<section>
+  <h2>肖像画・プロフィール（2つの姿）</h2>
+  <p class="lead" style="margin:0 0 10px;">
+    肖像画をクリックすると2つの姿が切り替わります。<br>
+    「声の活動」の姿のときは <strong>VOICE SAMPLE だけ</strong>、
+    「美術館ガイド」の姿のときは <strong>創作イラストなどの添付物だけ</strong>が表示されます
+    （どちらも同時には出ません）。
+  </p>
+  <div class="grid2">
+    <div class="profile-box">
+      <div class="field"><label>声の活動 側 ― 画像</label><input type="text" id="voiceImage" data-picker="images"></div>
+      <div class="field"><label>名前</label><input type="text" id="voiceName"></div>
+      <div class="field"><label>肩書き</label><input type="text" id="voiceTitle"></div>
+      <div class="field"><label>自己紹介文</label><textarea id="voiceBio"></textarea></div>
+    </div>
+    <div class="profile-box">
+      <div class="field"><label>美術館ガイド 側 ― 画像</label><input type="text" id="guideImage" data-picker="images"></div>
+      <div class="field"><label>名前</label><input type="text" id="guideName"></div>
+      <div class="field"><label>肩書き</label><input type="text" id="guideTitle"></div>
+      <div class="field"><label>自己紹介文</label><textarea id="guideBio"></textarea></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>VOICE SAMPLE（最大4件）</h2>
+  <div id="voiceSampleList"></div>
+</section>
+
+<section>
+  <h2>創作イラストなどの添付物（最大8件）</h2>
+  <p class="lead" style="margin:0 0 10px;">
+    ページ上でクリック（スマホはタップ）すると、大きく開いて細かいところまで見られます。
+    さらに「もっと拡大」を押すと、画像をドラッグ・スクロールして細部を確認できます。<br>
+    URLを入れておくと、拡大表示の中に「リンクを開く」ボタンが出ます。
+  </p>
+  <div id="attachmentList"></div>
+</section>
+
+<p class="lead">
+  編集した内容は、asaHPエディター左上の「変更をすべて保存」から保存してください。
+</p>
+
+<script src="../data/config.js"></script>
+<script src="../js/save-api.js"></script>
+<script src="../js/file-picker.js"></script>
+<script src="../js/config-serializer.js"></script>
+<script src="../js/about-editor.js"></script>
+</body>
+</html>

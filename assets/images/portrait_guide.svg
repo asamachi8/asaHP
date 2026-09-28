@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 600" role="img" aria-label="美術館ガイドとしての肖像画（仮）">
+  <rect width="480" height="600" fill="#1a2230"/>
+  <rect x="20" y="20" width="440" height="560" fill="none" stroke="#8a6a2f" stroke-width="2" stroke-dasharray="10 8"/>
+  <circle cx="240" cy="240" r="90" fill="none" stroke="#6f5527" stroke-width="2"/>
+  <path d="M170 430 Q240 340 310 430 L310 460 L170 460 Z" fill="none" stroke="#6f5527" stroke-width="2"/>
+  <path d="M190 210 Q240 170 290 210" fill="none" stroke="#6f5527" stroke-width="2"/>
+  <text x="240" y="510" text-anchor="middle" font-family="Georgia, 'Hiragino Mincho ProN', serif" font-size="24" fill="#cfa958">美術館ガイド 肖像画</text>
+  <text x="240" y="542" text-anchor="middle" font-family="Georgia, 'Hiragino Mincho ProN', serif" font-size="14" fill="#8a8f97">（画像差し替え用プレースホルダー）</text>
+</svg>

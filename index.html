@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>幻想肖像画美術館｜Portfolio</title>
+<meta name="description" content="幻想肖像画美術館の小展示室をイメージしたポートフォリオサイト">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230f141d'/%3E%3Crect x='7' y='7' width='18' height='18' fill='none' stroke='%23cfa958' stroke-width='2'/%3E%3C/svg%3E">
+<link rel="preload" as="image" href="assets/images/hero_exterior.jpg" media="(max-width: 899px), (max-aspect-ratio: 5/4)">
+<link rel="preload" as="image" href="assets/images/room_mobile.jpg" media="(max-width: 899px), (max-aspect-ratio: 5/4)">
+<link rel="preload" as="image" href="assets/images/room_pc.jpg" media="(min-width: 900px) and (min-aspect-ratio: 5/4)">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body class="page-main">
+
+<div class="museum">
+
+  <!-- スマホ：美術館の外観（PCでは非表示） -->
+  <header class="hero">
+    <div class="hero-bg" aria-hidden="true"></div>
+    <div class="hero-gradient" aria-hidden="true"></div>
+    <div class="hero-inner">
+      <img class="logo" data-role="site-logo" src="assets/images/logo.svg" alt="幻想肖像画美術館" width="480" height="120">
+      <p class="welcome-text" data-role="welcome-text">ようこそ、幻想肖像画美術館へ</p>
+    </div>
+  </header>
+
+  <!-- PC：壁のパネルに置くロゴ（スマホでは非表示） -->
+  <div class="pc-logo-block">
+    <img class="pc-logo" data-role="site-logo" src="assets/images/logo.svg" alt="幻想肖像画美術館" width="480" height="120">
+    <p class="welcome-text" data-role="welcome-text">ようこそ、幻想肖像画美術館へ</p>
+  </div>
+
+  <!-- 小展示室（背景画像に描かれた額縁の上に、肖像リンクと展示を重ねる） -->
+  <div class="room">
+    <div class="room-bg" aria-hidden="true"></div>
+
+    <a class="slot portrait-frame" id="portraitFrame" href="about.html" aria-label="自己紹介ページへ">
+      <span class="frame-outer">
+        <span class="frame-inner">
+          <img id="portraitImage" src="assets/images/portrait_voice.svg" alt="">
+        </span>
+      </span>
+      <span class="slot-caption always-caption" aria-hidden="true">ABOUT</span>
+    </a>
+
+    <nav class="wall" id="exhibitGallery" aria-label="活動展示"></nav>
+
+    <div id="sideDecorSlot"></div>
+  </div>
+
+  <!-- スマホ用：展示名の一覧（額縁が小さいため、名前を文字でも見せる） -->
+  <nav class="exhibit-list" id="exhibitList" aria-label="展示一覧">
+    <span class="exhibit-list-label">EXHIBITION</span>
+  </nav>
+
+  <!-- サイト内ナビゲーション -->
+  <nav class="site-nav" aria-label="サイト内ナビゲーション">
+    <a href="index.html" class="is-current">HOME</a>
+    <a href="about.html">ABOUT</a>
+    <a href="contact.html">CONTACT</a>
+  </nav>
+
+</div>
+
+<script src="data/config.js"></script>
+<script src="data/layout.js"></script>
+<script src="js/common.js"></script>
+<script src="js/layout-apply.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,40 @@
+/* asaHPエディターの各ノート共通：「画像を選ぶ」ボタンまわり */
+
+.picker-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.picker-btn {
+  font-size: 11px;
+  padding: 5px 12px;
+  background: #202020;
+  color: #e8e8e8;
+  border: 1px solid #3a3a3a;
+  border-radius: 3px;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+}
+.picker-btn:hover { border-color: #ffffff; }
+
+.picker-thumb {
+  display: inline-flex;
+  align-items: center;
+}
+.picker-thumb img {
+  width: 34px;
+  height: 34px;
+  object-fit: cover;
+  border: 1px solid #3a3a3a;
+  border-radius: 3px;
+  background: #000;
+  display: block;
+}
+
+.picker-status {
+  font-size: 11px;
+  color: #9a9a9a;
+}

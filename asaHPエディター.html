@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>asaHPエディター</title>
+<style>
+  :root {
+    --bg: #0b0b0b;
+    --panel: #161616;
+    --panel-2: #1e1e1e;
+    --border: #333333;
+    --text: #e8e8e8;
+    --dim: #8f8f8f;
+    --accent: #ffffff;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", system-ui, sans-serif;
+  }
+
+  .shell { display: flex; height: 100%; }
+
+  /* ---- サイドバー（ノート一覧） ---- */
+  .side {
+    width: 220px;
+    flex: none;
+    background: var(--panel);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+  }
+  .side h1 {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    margin: 0;
+    padding: 16px 16px 4px;
+    color: var(--text);
+  }
+  .side .caption {
+    font-size: 11px;
+    color: var(--dim);
+    padding: 0 16px 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .note-list {
+    list-style: none;
+    margin: 0;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .note-list button {
+    position: relative;
+    width: 100%;
+    text-align: left;
+    background: transparent;
+    color: var(--text);
+    border: 1px solid transparent;
+    border-radius: 4px;
+    padding: 10px 12px;
+    font-size: 13px;
+    font-family: inherit;
+    cursor: pointer;
+  }
+  .note-list button .desc {
+    display: block;
+    font-size: 11px;
+    color: var(--dim);
+    margin-top: 2px;
+  }
+  .note-list button:hover { border-color: var(--border); background: var(--panel-2); }
+  .note-list button.on { background: var(--panel-2); border-color: var(--accent); }
+  .note-list button .dot {
+    display: none;
+    position: absolute;
+    top: 10px; right: 10px;
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: #e0a84f;
+  }
+  .note-list button.dirty .dot { display: block; }
+
+  .side .foot {
+    margin-top: auto;
+    padding: 12px 16px;
+    font-size: 10px;
+    color: var(--dim);
+    border-top: 1px solid var(--border);
+    line-height: 1.6;
+  }
+
+  /* ---- メイン ---- */
+  .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .topbar {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    background: var(--panel);
+  }
+  .topbar .title { font-size: 13px; font-weight: 700; }
+  .topbar .desc { font-size: 12px; color: var(--dim); }
+  .topbar .sp { flex: 1; }
+  .topbar .note-msg { font-size: 12px; color: var(--dim); }
+  .topbar a, .topbar button.linklike {
+    font-size: 12px;
+    color: var(--text);
+    text-decoration: none;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 6px 12px;
+    background: transparent;
+    font-family: inherit;
+    cursor: pointer;
+  }
+  .topbar a:hover, .topbar button.linklike:hover { border-color: var(--accent); }
+  .topbar button.primary {
+    background: #e0a84f;
+    border-color: #e0a84f;
+    color: #1a1400;
+    font-weight: 700;
+  }
+  .topbar button.primary:hover { filter: brightness(1.08); }
+  .topbar button:disabled { opacity: .55; cursor: default; }
+
+  .content { position: relative; flex: 1; min-height: 0; }
+  .content iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: var(--bg); }
+
+  /* 狭い画面ではサイドバーを上に */
+  @media (max-width: 760px) {
+    .shell { flex-direction: column; }
+    .side { width: auto; border-right: 0; border-bottom: 1px solid var(--border); }
+    .note-list { flex-direction: row; overflow-x: auto; }
+    .note-list button { width: auto; min-width: 140px; }
+    .note-list button .desc { display: none; }
+    .side .foot { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="shell">
+  <div class="side">
+    <h1>asaHPエディター</h1>
+    <p class="caption">ローカル専用の管理ツールです</p>
+    <ul class="note-list" id="noteList"></ul>
+    <div class="foot">
+      「変更をすべて保存」を押すと、<br>
+      asaHP_本体 の中身が更新されます。
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="topbar">
+      <span class="title" id="noteTitle"></span>
+      <span class="desc" id="noteDesc"></span>
+      <span class="sp"></span>
+      <span class="note-msg" id="saveMsg"></span>
+      <button type="button" class="primary" id="saveAllBtn">変更をすべて保存</button>
+      <a id="popout" href="#" target="_blank" rel="noopener">別タブで開く</a>
+    </div>
+    <div class="content" id="content"></div>
+  </div>
+</div>
+
+<script>
+(function () {
+  // 今後ツールが増えたら、ここに追加してください。
+  var NOTES = [
+    { id: "home", name: "ホームページ", desc: "展示6枠の画像・リンク、椅子横の飾りの位置・画像", url: "tools/layout.html" },
+    { id: "about", name: "自己紹介ページ", desc: "背景・肖像画・VOICE SAMPLE・添付物", url: "tools/about.html" },
+    { id: "contact", name: "コンタクトページ", desc: "背景・説明文・記入項目", url: "tools/contact.html" },
+    { id: "topics", name: "トピックページ", desc: "サロン広報（メンバー紹介・最近のトピック）", url: "tools/topics.html" },
+    { id: "preview", name: "表示確認", desc: "スマホ／PC表示をその場で確認", url: "tools/preview.html" }
+  ];
+
+  var listEl = document.getElementById("noteList");
+  var content = document.getElementById("content");
+  var titleEl = document.getElementById("noteTitle");
+  var descEl = document.getElementById("noteDesc");
+  var popout = document.getElementById("popout");
+  var saveAllBtn = document.getElementById("saveAllBtn");
+  var saveMsg = document.getElementById("saveMsg");
+  var frames = {};
+  var buttons = {};
+  var current = null;
+  var msgHoldUntil = 0;
+
+  function frameWin(id) {
+    try { return frames[id] && frames[id].contentWindow; } catch (e) { return null; }
+  }
+
+  function isDirty(id) {
+    try {
+      var w = frameWin(id);
+      return !!(w && typeof w.EDITOR_DIRTY === "function" && w.EDITOR_DIRTY());
+    } catch (e) { return false; }
+  }
+
+  function ensureFrame(note) {
+    if (frames[note.id]) return frames[note.id];
+    var f = document.createElement("iframe");
+    f.src = note.url;
+    f.title = note.name;
+    content.appendChild(f);
+    frames[note.id] = f;
+    return f;
+  }
+
+  function select(id) {
+    var note = NOTES.filter(function (n) { return n.id === id; })[0] || NOTES[0];
+    ensureFrame(note);
+    NOTES.forEach(function (n) {
+      buttons[n.id].classList.toggle("on", n.id === note.id);
+      if (frames[n.id]) frames[n.id].style.display = n.id === note.id ? "block" : "none";
+    });
+    titleEl.textContent = note.name;
+    descEl.textContent = note.desc;
+    popout.href = note.url;
+    current = note.id;
+    try { localStorage.setItem("asaHP-editor-note", note.id); } catch (e) {}
+  }
+
+  function refreshBadges() {
+    NOTES.forEach(function (n) {
+      buttons[n.id].classList.toggle("dirty", isDirty(n.id));
+    });
+    if (Date.now() < msgHoldUntil) return;
+    saveMsg.textContent = current && isDirty(current) ? "● 未保存の変更があります" : "";
+  }
+
+  NOTES.forEach(function (n) {
+    var li = document.createElement("li");
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.innerHTML = n.name + '<span class="desc">' + n.desc + '</span><span class="dot"></span>';
+    btn.addEventListener("click", function () { select(n.id); });
+    li.appendChild(btn);
+    listEl.appendChild(li);
+    buttons[n.id] = btn;
+  });
+
+  saveAllBtn.addEventListener("click", async function () {
+    var targets = NOTES.filter(function (n) { return isDirty(n.id); });
+    if (!targets.length) {
+      saveMsg.textContent = "保存していない変更はありません";
+      msgHoldUntil = Date.now() + 2500;
+      return;
+    }
+    saveAllBtn.disabled = true;
+    msgHoldUntil = Date.now() + 60000;
+    var done = [], failed = [];
+    for (var i = 0; i < targets.length; i++) {
+      var n = targets[i];
+      saveMsg.textContent = "「" + n.name + "」を保存しています…";
+      try {
+        var w = frameWin(n.id);
+        if (!w || typeof w.EDITOR_SAVE !== "function") throw new Error("保存の仕組みがありません");
+        await w.EDITOR_SAVE();
+        (isDirty(n.id) ? failed : done).push(n.name);
+      } catch (e) {
+        failed.push(n.name);
+      }
+    }
+    saveAllBtn.disabled = false;
+    msgHoldUntil = 0;
+    refreshBadges();
+    saveMsg.textContent =
+      (done.length ? "保存しました：" + done.join("・") : "") +
+      (failed.length ? (done.length ? "　" : "") + "保存できませんでした：" + failed.join("・") : "");
+    msgHoldUntil = Date.now() + (failed.length ? 8000 : 4000);
+  });
+
+  window.addEventListener("beforeunload", function (e) {
+    if (NOTES.some(function (n) { return isDirty(n.id); })) {
+      e.preventDefault();
+      e.returnValue = "";
+    }
+  });
+
+  setInterval(refreshBadges, 1000);
+
+  var start = "home";
+  try { start = localStorage.getItem("asaHP-editor-note") || start; } catch (e) {}
+  select(start);
+})();
+</script>
+</body>
+</html>

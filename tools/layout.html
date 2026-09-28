@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ホームページ｜asaHPエディター</title>
+<link rel="stylesheet" href="../css/editor-tools.css">
+<style>
+  :root {
+    --bg: #101010; --panel: #1a1a1a; --panel-2: #202020;
+    --border: #3a3a3a; --text: #e8e8e8; --dim: #9a9a9a; --accent: #ffffff;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", system-ui, sans-serif;
+  }
+  body { padding: 16px 16px 60px; }
+
+  .lead { color: var(--dim); font-size: 12px; margin: 0 0 16px; line-height: 1.8; }
+  .lead code { color: var(--text); }
+
+  section { margin-bottom: 26px; }
+  section h2 {
+    font-size: 13px; letter-spacing: 0.04em; margin: 0 0 10px;
+    padding-bottom: 6px; border-bottom: 1px solid var(--border); color: var(--text);
+  }
+
+  .toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 14px; }
+  .tabs { display: flex; gap: 6px; }
+  .tabs button, .btn {
+    font-size: 12px; letter-spacing: 0.02em;
+    padding: 7px 14px; background: var(--panel); color: var(--text);
+    border: 1px solid var(--border); border-radius: 3px; cursor: pointer;
+    font-family: inherit;
+  }
+  .tabs button.active { background: var(--accent); color: #000; border-color: var(--accent); }
+  .btn:hover, .tabs button:hover { border-color: var(--accent); }
+  .btn.danger:hover { border-color: #d66; }
+
+  .layout-main { display: flex; gap: 18px; flex-wrap: wrap; align-items: flex-start; }
+  /* 画面外へはみ出した枠も操作できるよう、プレビューのまわりに余白をとる */
+  .canvas-wrap { flex: 1 1 320px; max-width: 480px; padding: 40px 40px 56px; }
+  .canvas {
+    position: relative; width: 100%; background: #000;
+    outline: 1px solid var(--border); user-select: none; touch-action: none;
+  }
+  .canvas img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; }
+
+  .box {
+    position: absolute; box-sizing: border-box;
+    border: 1px dashed rgba(255, 255, 255, 0.35);
+    pointer-events: none;
+  }
+  .box .box-label {
+    position: absolute; top: 2px; left: 2px; font-size: 10px; padding: 1px 4px;
+    background: rgba(0, 0, 0, 0.7); color: var(--dim); white-space: nowrap;
+  }
+
+  .box.movable {
+    border: 2px solid rgba(255, 255, 255, 0.55); background: rgba(255, 255, 255, 0.1);
+    cursor: move; touch-action: none; pointer-events: auto;
+  }
+  .box.movable.active { background: rgba(255, 255, 255, 0.28); border-color: #fff; z-index: 5; }
+  .box.movable .box-label { color: var(--text); }
+  .box.movable .handle {
+    position: absolute; right: -6px; bottom: -6px; width: 14px; height: 14px;
+    background: var(--accent); border: 1px solid #000;
+    cursor: nwse-resize; border-radius: 2px;
+  }
+
+  .side { flex: 1 1 240px; min-width: 220px; display: flex; flex-direction: column; gap: 8px; }
+  .field-row { display: grid; grid-template-columns: 60px repeat(4, 1fr) auto; gap: 6px; align-items: center; font-size: 12px; }
+  .field-row.head { color: var(--dim); font-size: 11px; }
+  .field-row input[type="number"] {
+    width: 100%; background: var(--panel-2); border: 1px solid var(--border);
+    color: var(--text); padding: 4px; border-radius: 3px; font-size: 12px; font-family: inherit;
+  }
+  .field-row label.name { color: var(--text); }
+  .field-row input[type="checkbox"] { width: 16px; height: 16px; }
+
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 700px) { .grid2 { grid-template-columns: 1fr; } }
+
+  .field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; }
+  .field label { font-size: 11px; color: var(--dim); }
+  .field input[type="text"] {
+    background: var(--panel-2); border: 1px solid var(--border); color: var(--text);
+    padding: 7px 8px; border-radius: 3px; font-size: 13px; font-family: inherit; width: 100%;
+  }
+
+  .item-card {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 4px;
+    padding: 12px; margin-bottom: 10px;
+  }
+  .item-head {
+    display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; gap: 8px;
+  }
+  .item-head .badge { font-size: 11px; color: var(--dim); }
+  .item-head label { font-size: 12px; display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+  .item-head .order-btns { display: flex; gap: 4px; }
+  .item-head .order-btns button { padding: 3px 8px; font-size: 11px; }
+
+  /* ロゴのプレビュー（実際のヘッダーに近い暗い背景で確認する） */
+  .logo-preview {
+    margin-top: 10px;
+    padding: 14px;
+    background: #0f141d;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    text-align: center;
+  }
+  .logo-preview img { display: inline-block; height: auto; }
+  .logo-preview .empty { color: var(--dim); font-size: 12px; }
+</style>
+</head>
+<body>
+
+<p class="lead">
+  ホーム画面（<code>index.html</code>）の内容を編集します。活動展示6枠は
+  <b>位置・大きさを固定</b>していて、ここでは画像・リンクの中身だけを変更します。
+  椅子横の飾り画像だけは、下の背景プレビューでドラッグして位置調整できます
+  （<b>背景の外へはみ出してもOK</b>です。はみ出した部分はサイトでは表示されません）。
+  画像は「画像を選ぶ」ボタンから、パソコンの中のファイルを選べます。
+</p>
+
+<section>
+  <h2>タイトルロゴ</h2>
+  <div class="field">
+    <label>ロゴ画像</label>
+    <input type="text" id="logoImage" data-picker="images">
+  </div>
+  <div class="grid2">
+    <div class="field">
+      <label>スマホでの大きさ（横幅％／標準76）</label>
+      <input type="number" id="logoWidthMobile" min="5" max="100" step="1">
+    </div>
+    <div class="field">
+      <label>PCでの大きさ（横幅％／標準16）</label>
+      <input type="number" id="logoWidthPC" min="3" max="60" step="0.5">
+    </div>
+  </div>
+  <div class="field">
+    <label>ロゴの下に添える一言（空欄なら表示しません）</label>
+    <input type="text" id="welcomeText">
+  </div>
+  <div class="logo-preview" id="logoPreview" aria-hidden="true"></div>
+</section>
+
+<section>
+  <h2>配置プレビュー</h2>
+  <div class="toolbar">
+    <div class="tabs">
+      <button type="button" data-mode="mobile" class="active">スマホ用（room_mobile.jpg）</button>
+      <button type="button" data-mode="pc">PC用（room_pc.jpg）</button>
+    </div>
+  </div>
+  <div class="layout-main">
+    <div class="canvas-wrap">
+      <div class="canvas" id="canvas">
+        <img id="canvasImg" alt="背景画像">
+      </div>
+    </div>
+    <div class="side" id="sidePanel"></div>
+  </div>
+</section>
+
+<section>
+  <h2>活動展示（6枠・並び順＝優先順位）</h2>
+  <div id="exhibitList"></div>
+</section>
+
+<section>
+  <h2>椅子横の飾り画像</h2>
+  <div class="grid2">
+    <div class="field"><label>画像ファイル（空欄なら非表示）</label><input type="text" id="decorImage" data-picker="images"></div>
+    <div class="field"><label>クリック時に開くURL（空欄ならリンクなし）</label><input type="text" id="decorUrl"></div>
+  </div>
+  <label style="font-size:12px; display:flex; align-items:center; gap:6px;">
+    <input type="checkbox" id="decorPublished"> 公開する
+  </label>
+</section>
+
+<script src="../data/layout.js"></script>
+<script src="../data/config.js"></script>
+<script src="../js/save-api.js"></script>
+<script src="../js/file-picker.js"></script>
+<script src="../js/config-serializer.js"></script>
+<script src="../js/editor.js"></script>
+</body>
+</html>

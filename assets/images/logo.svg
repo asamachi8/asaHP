@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 120" role="img" aria-label="幻想肖像画美術館 ロゴ">
+  <rect width="480" height="120" fill="none"/>
+  <text x="240" y="52" text-anchor="middle" font-family="Georgia, 'Hiragino Mincho ProN', serif" font-size="34" letter-spacing="4" fill="#e6cf98">幻想肖像画美術館</text>
+  <text x="240" y="82" text-anchor="middle" font-family="Georgia, 'Hiragino Mincho ProN', serif" font-size="13" letter-spacing="6" fill="#a6853f">MUSEUM OF FANTASTICAL PORTRAITS</text>
+  <line x1="120" y1="96" x2="360" y2="96" stroke="#8a6a2f" stroke-width="1"/>
+</svg>
