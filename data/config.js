@@ -52,7 +52,7 @@ window.SITE_CONFIG = {
         "image": "assets/images/ツヅミサロン長額装.png",
         "url": "",
         "intro": "創作サロン・ぎんがむたんぽぽのトップ。経験豊富、幅広く知識を持つ社会人。鳥とゲームが大好き。",
-        "musicTitle": "BATTLESALON TSUZUMI",
+        "musicTitle": "♪  幽暗なる舞台の上で",
         "musicSrc": "assets/audio/BATTLESALON_TSUZUMI.mp3",
         "published": true
       },
@@ -60,8 +60,8 @@ window.SITE_CONFIG = {
         "name": "肖像画ガイド・あさまち",
         "image": "assets/images/ガイドあさまち額装.png",
         "url": "",
-        "intro": "当ホームページの作成・管理者。気になる物事に広く浅くすべてにチャレンジしようとする社会人。",
-        "musicTitle": "BATTLE ASAMACHI",
+        "intro": "当ホームページの作成・管理者。気になる物事に広く浅くすべてにチャレンジしようとする無茶ぶり社会人。",
+        "musicTitle": "♪  BATTLE ASAMACHI",
         "musicSrc": "assets/audio/BATTLE_ASAMACHI.mp3",
         "published": true
       },
@@ -70,7 +70,7 @@ window.SITE_CONFIG = {
         "image": "assets/images/シンガー青助額装.png",
         "url": "",
         "intro": "人の魂よりも、音楽のグルーヴに興味がある。ひそかな憧れ人は、昔見た南国を超満喫してる死神インスタグラマー。",
-        "musicTitle": "Grim Reaper's Blues Groove",
+        "musicTitle": "♪  Grim Reaper's Blues Groove",
         "musicSrc": "assets/audio/Grim_Reaper_s_Blues_Groove.mp3",
         "published": true
       }
