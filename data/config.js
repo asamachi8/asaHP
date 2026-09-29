@@ -203,7 +203,7 @@ window.SITE_CONFIG = {
       "view": {
         "fit": "cover",
         "mobile": {
-          "x": 50,
+          "x": 50.4,
           "y": 50
         },
         "pc": {
@@ -293,7 +293,7 @@ window.SITE_CONFIG = {
         },
         "pc": {
           "x": 50,
-          "y": 50
+          "y": 19.7
         }
       }
     }
