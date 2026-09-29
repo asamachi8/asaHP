@@ -18,6 +18,8 @@
   document.body.addEventListener("change", markDirty, true);
 
   document.getElementById("topicsTitle").value = topics.title || "";
+  document.getElementById("topicsKicker").value = topics.kicker || "";
+  document.getElementById("topicsLead").value = topics.lead || "";
   document.getElementById("topicsBg").value = (cfg.room && cfg.room.topicsBackground) || "";
   document.getElementById("topicsOverlay").value =
     cfg.room && typeof cfg.room.topicsOverlay === "number" ? cfg.room.topicsOverlay : 0.45;
@@ -134,6 +136,8 @@
 
     base.topics = base.topics || {};
     base.topics.title = document.getElementById("topicsTitle").value;
+    base.topics.kicker = document.getElementById("topicsKicker").value;
+    base.topics.lead = document.getElementById("topicsLead").value;
     base.topics.logo = {
       image: document.getElementById("topicsLogo").value,
       width: parseInt(document.getElementById("topicsLogoWidth").value, 10) || 150,

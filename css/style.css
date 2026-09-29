@@ -1108,16 +1108,28 @@ button { font-family: inherit; cursor: pointer; }
   margin: 0 auto;
 }
 
-/* タイトルの上（中央） */
-.salon-logo-title-top { margin: 0 0 10px; }
+/* タイトルの上（中央）。銘板の上端に、封蝋のように重ねる */
+.salon-logo-title-top {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  transform: translate(-50%, -52%);
+  margin: 0;
+  z-index: 1;
+  /* 上のナビに重なっても、ボタンが押せなくならないようにする */
+  pointer-events: none;
+}
+.salon-logo-title-top img {
+  filter: drop-shadow(0 5px 12px rgba(0, 0, 0, 0.65));
+}
 
-/* タイトルの左横に並べる */
+/* タイトルの左横に並べる（銘板の中で横一列にする） */
 .topics-title-row {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 16px;
-  margin-bottom: 6px;
 }
 .topics-title-row h1 { margin: 0; text-align: left; }
 .salon-logo-title-left { flex: none; }
@@ -1149,14 +1161,79 @@ button { font-family: inherit; cursor: pointer; }
   opacity: 0.1;
 }
 
+/* ---- 入口サインの銘板（ロゴ・ページ名・説明文をまとめる） ---- */
+
+.salon-plate {
+  position: relative;
+  max-width: 640px;
+  margin: 0 auto 34px;
+  padding: 30px 26px 24px;
+  text-align: center;
+  background: linear-gradient(180deg, rgba(19, 26, 36, 0.96), rgba(12, 17, 25, 0.96));
+  border: 1px solid var(--gold-dim);
+  border-radius: 2px;
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.55);
+}
+
+/* 金の二重線（内側の細い線） */
+.salon-plate::before {
+  content: "";
+  position: absolute;
+  inset: 5px;
+  border: 1px solid rgba(207, 169, 88, 0.42);
+  border-radius: 1px;
+  pointer-events: none;
+}
+
 .topics-page h1 {
+  position: relative;
   font-family: var(--font-serif);
   font-weight: 400;
-  font-size: clamp(20px, 4.6vw, 30px);
-  letter-spacing: 0.08em;
+  font-size: clamp(19px, 4.4vw, 28px);
+  letter-spacing: 0.1em;
+  line-height: 1.5;
   color: var(--gold-bright);
   text-align: center;
-  margin: 0 0 6px;
+  margin: 0;
+}
+
+/* タイトルの下の細い金線と、その下の小さな英字 */
+.salon-kicker {
+  position: relative;
+  margin: 14px auto 0;
+  padding-top: 13px;
+  max-width: 300px;
+  font-family: var(--font-serif);
+  font-size: 11px;
+  letter-spacing: 0.34em;
+  text-indent: 0.34em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+.salon-kicker::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold-dim) 22%, var(--gold) 50%, var(--gold-dim) 78%, transparent);
+}
+
+.salon-lead {
+  position: relative;
+  margin: 16px auto 0;
+  max-width: 440px;
+  font-size: 13px;
+  line-height: 2;
+  color: var(--cream-dim);
+}
+
+/* 狭い画面では、ページ名が途中で折り返さないよう左右の余白を詰める */
+@media (max-width: 560px) {
+  .salon-plate { padding-left: 14px; padding-right: 14px; }
+  .salon-lead { font-size: 12.5px; }
 }
 
 /* ---- サロンメンバー ---- */

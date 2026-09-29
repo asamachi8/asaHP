@@ -39,10 +39,12 @@ window.SITE_CONFIG = {
   },
   "topics": {
     "title": "ぎんがむたんぽぽ・サロン広報",
+    "kicker": "SALON BULLETIN",
+    "lead": "*:.。創作サロン・ぎんがむたんぽぽ 。.:*　の活動と　　　　　　　　　　　　　　　　　　　　　お知らせをお届けします。",
     "logo": {
-      "image": "assets/images/サロン・ぎんがむたんぽぽロゴ透過.png",
-      "width": 150,
-      "position": "title-top"
+      "image": "assets/images/サロン_ぎんがむたんぽぽロゴ透過.png",
+      "width": 115,
+      "position": "title-left"
     },
     "members": [
       {

@@ -16,11 +16,26 @@
   var MAX_ARTICLES = 3;
 
   var titleEl = document.getElementById("topicsTitle");
+  var plateEl = document.getElementById("salonPlate");
 
   if (topics.title) {
     titleEl.textContent = topics.title;
     document.title = topics.title + "｜" + cfg.museumName;
   }
+
+  // タイトル下の小さな英字と、ページの説明文（どちらも空欄なら出さない）
+  (function fillPlateText() {
+    var kicker = document.getElementById("salonKicker");
+    var lead = document.getElementById("salonLead");
+    if (kicker) {
+      kicker.textContent = topics.kicker || "";
+      kicker.hidden = !topics.kicker;
+    }
+    if (lead) {
+      lead.textContent = topics.lead || "";
+      lead.hidden = !topics.lead;
+    }
+  })();
 
   // ==========================================================
   // 創作サロン・ぎんがむたんぽぽのロゴ
@@ -56,7 +71,15 @@
       row.appendChild(box);
       row.appendChild(titleEl);
     } else {
+      // 銘板の上端に、封蝋のように重ねる。
+      // ロゴの高さぶんだけ銘板の上を空けて、文字と重ならないようにする。
       titleEl.parentNode.insertBefore(box, titleEl);
+      if (plateEl) {
+        // 銘板の中は、ロゴと文字が重ならないぶんだけ上を空ける
+        plateEl.style.paddingTop = Math.round(width * 0.58 + 16) + "px";
+        // 銘板の上も、はみ出したロゴがナビに重ならないだけ空ける
+        plateEl.style.marginTop = Math.round(width * 0.62) + "px";
+      }
     }
   })();
 

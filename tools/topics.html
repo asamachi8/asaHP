@@ -57,8 +57,24 @@
 </p>
 
 <section>
-  <h2>ページタイトル</h2>
-  <div class="field"><input type="text" id="topicsTitle"></div>
+  <h2>入口サイン（ページ上部の銘板）</h2>
+  <p class="lead" style="margin:0 0 10px;">
+    ロゴ・ページ名・説明文をひとまとめにした看板です。背景の絵に負けないよう、濃紺の板の上に置いています。
+  </p>
+  <div class="field">
+    <label for="topicsTitle">ページ名（大きく出る文字）</label>
+    <input type="text" id="topicsTitle">
+  </div>
+  <div class="grid2">
+    <div class="field">
+      <label for="topicsKicker">ページ名の下の小さな英字（空欄なら出しません）</label>
+      <input type="text" id="topicsKicker" placeholder="SALON BULLETIN">
+    </div>
+    <div class="field">
+      <label for="topicsLead">説明文（このページが何かを伝える一文）</label>
+      <textarea id="topicsLead" style="min-height:56px;"></textarea>
+    </div>
+  </div>
 </section>
 
 <section>
