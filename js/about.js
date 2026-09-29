@@ -165,6 +165,7 @@
   var lbTitle = document.getElementById("lightboxTitle");
   var lbLink = document.getElementById("lightboxLink");
   var lbZoom = document.getElementById("lightboxZoom");
+  var lbHint = document.getElementById("lightboxHint");
   var lbPrev = document.getElementById("lightboxPrev");
   var lbNext = document.getElementById("lightboxNext");
   var lbClose = document.getElementById("lightboxClose");
@@ -172,11 +173,41 @@
   var lbIndex = 0;
   var lastFocused = null;
 
-  function setZoom(on) {
+  // on にするとき focus（画面上の座標）を渡すと、その場所が中央に来るようにスクロールする
+  function setZoom(on, focus) {
     if (!lbPanel) return;
-    lbPanel.classList.toggle("is-zoomed", !!on);
+    on = !!on;
+
+    var rel = null;
+    if (on && focus && lbImage) {
+      var before = lbImage.getBoundingClientRect();
+      if (before.width > 0 && before.height > 0) {
+        rel = {
+          x: (focus.x - before.left) / before.width,
+          y: (focus.y - before.top) / before.height
+        };
+      }
+    }
+
+    lbPanel.classList.toggle("is-zoomed", on);
     if (lbZoom) lbZoom.textContent = on ? "拡大をもどす" : "もっと拡大";
-    if (!on && lbStage) { lbStage.scrollLeft = 0; lbStage.scrollTop = 0; }
+    if (lbHint) {
+      lbHint.textContent = on
+        ? "ドラッグ（スマホはなぞって）細部を見られます／長押しでもどります"
+        : "画像を長押しすると拡大できます";
+    }
+    if (!lbStage) return;
+
+    if (!on) {
+      lbStage.scrollLeft = 0;
+      lbStage.scrollTop = 0;
+      return;
+    }
+    // クラスを付け替えた直後に位置を読むと、拡大後の大きさが反映されている
+    var focusX = rel ? rel.x : 0.5;
+    var focusY = rel ? rel.y : 0.5;
+    lbStage.scrollLeft = focusX * lbStage.scrollWidth - lbStage.clientWidth / 2;
+    lbStage.scrollTop = focusY * lbStage.scrollHeight - lbStage.clientHeight / 2;
   }
 
   function showWork(index) {
@@ -233,9 +264,6 @@
     lbZoom.addEventListener("click", function () {
       setZoom(!lbPanel.classList.contains("is-zoomed"));
     });
-    lbImage.addEventListener("click", function () {
-      setZoom(!lbPanel.classList.contains("is-zoomed"));
-    });
 
     document.addEventListener("keydown", function (e) {
       if (lightbox.hidden) return;
@@ -244,31 +272,80 @@
       else if (e.key === "ArrowRight") { e.preventDefault(); step(1); }
     });
 
-    // 拡大中はマウスのドラッグでも画像を動かせるようにする
-    var dragging = false, startX = 0, startY = 0, startLeft = 0, startTop = 0;
+    // ==========================================================
+    // 画像の上での指・マウスの動き
+    //  ・押したままにする（長押し）→ 押した場所を中心に拡大／もとに戻す
+    //  ・拡大中にドラッグ → 画像を動かして細部を見る
+    // どちらも同じ押し込みから始まるので、ひとつの仕組みにまとめて扱う。
+    // ==========================================================
+    var HOLD_MS = 450;
+    var MOVE_LIMIT = 10; // これ以上動いたら「動かしたい」とみなし、長押しは取り消す
+
+    var holdTimer = null;
+    var pressFrom = null;
+    var dragging = false;
+    var startLeft = 0, startTop = 0;
+
+    function clearHoldTimer() {
+      if (holdTimer) { clearTimeout(holdTimer); holdTimer = null; }
+      lbStage.classList.remove("is-pressing");
+    }
+
+    function endPress() {
+      clearHoldTimer();
+      pressFrom = null;
+      dragging = false;
+      lbStage.classList.remove("is-dragging");
+    }
 
     lbStage.addEventListener("pointerdown", function (e) {
-      if (!lbPanel.classList.contains("is-zoomed") || e.pointerType === "touch") return;
-      dragging = true;
-      startX = e.clientX; startY = e.clientY;
-      startLeft = lbStage.scrollLeft; startTop = lbStage.scrollTop;
-      lbStage.classList.add("is-dragging");
-      lbStage.setPointerCapture(e.pointerId);
+      if (e.target !== lbImage) return;              // 余白を押したときは何もしない
+      if (e.button !== undefined && e.button !== 0) return; // 右クリックなどは対象外
+
+      endPress();
+      pressFrom = { x: e.clientX, y: e.clientY };
+      startLeft = lbStage.scrollLeft;
+      startTop = lbStage.scrollTop;
+      lbStage.classList.add("is-pressing");
+
+      // マウスのときだけ、枠の外まで動かしても追えるようにつかまえておく
+      if (e.pointerType !== "touch" && lbStage.setPointerCapture) {
+        try { lbStage.setPointerCapture(e.pointerId); } catch (err) {}
+      }
+
+      holdTimer = setTimeout(function () {
+        holdTimer = null;
+        lbStage.classList.remove("is-pressing");
+        var zoomed = lbPanel.classList.contains("is-zoomed");
+        setZoom(!zoomed, zoomed ? null : pressFrom);
+      }, HOLD_MS);
     });
 
     lbStage.addEventListener("pointermove", function (e) {
-      if (!dragging) return;
-      e.preventDefault();
-      lbStage.scrollLeft = startLeft - (e.clientX - startX);
-      lbStage.scrollTop = startTop - (e.clientY - startY);
+      if (!pressFrom) return;
+
+      var movedFar =
+        Math.abs(e.clientX - pressFrom.x) > MOVE_LIMIT ||
+        Math.abs(e.clientY - pressFrom.y) > MOVE_LIMIT;
+
+      // 少しでも動いたら長押しではないので取り消す
+      if (movedFar && holdTimer) clearHoldTimer();
+
+      // 拡大中なら、そのまま画像を動かす（指での移動は画面側に任せる）
+      if (movedFar && lbPanel.classList.contains("is-zoomed") && e.pointerType !== "touch") {
+        if (!dragging) { dragging = true; lbStage.classList.add("is-dragging"); }
+        e.preventDefault();
+        lbStage.scrollLeft = startLeft - (e.clientX - pressFrom.x);
+        lbStage.scrollTop = startTop - (e.clientY - pressFrom.y);
+      }
     });
 
-    ["pointerup", "pointercancel"].forEach(function (type) {
-      lbStage.addEventListener(type, function () {
-        dragging = false;
-        lbStage.classList.remove("is-dragging");
-      });
+    ["pointerup", "pointercancel", "pointerleave"].forEach(function (type) {
+      lbStage.addEventListener(type, endPress);
     });
+
+    // 長押ししたときにスマホの「画像を保存」メニューが出ないようにする
+    lbImage.addEventListener("contextmenu", function (e) { e.preventDefault(); });
   }
 
   // 両方の枠を作り終えたので、いまの姿に合わせて表示を切り替える

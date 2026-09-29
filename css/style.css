@@ -801,6 +801,7 @@ button { font-family: inherit; cursor: pointer; }
 .attachment-item img {
   width: 100%;
   height: 100%;
+  /* 一覧では枠いっぱいに見せる。作品の全体は、押して開いたときに表示される */
   object-fit: cover;
 }
 
@@ -834,28 +835,37 @@ button { font-family: inherit; cursor: pointer; }
   flex: 1;
   min-height: 0;
   overflow: auto;
-  display: grid;
-  place-items: center;
+  /* grid + place-items だと画像の max-height:100% が効かず、
+     縦長の作品が枠からはみ出して切れてしまうため flex で中央寄せする */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* 拡大して画像が枠より大きいとき、上端・左端が掴めなくなるのを防ぐ */
+  align-items: safe center;
+  justify-content: safe center;
   border: 1px solid rgba(138, 106, 47, 0.5);
   border-radius: 2px;
   background: #0b0e13;
-  /* スマホでは指でつまんで拡大・スワイプで移動できる */
   touch-action: pan-x pan-y pinch-zoom;
   overscroll-behavior: contain;
 }
 
 .lightbox-stage img {
+  flex: none;
   max-width: 100%;
   max-height: 100%;
   width: auto;
+  height: auto;
   object-fit: contain;
   cursor: zoom-in;
   user-select: none;
+  -webkit-user-select: none;
   -webkit-user-drag: none;
+  /* 長押しでスマホのメニューが出ないようにする */
+  -webkit-touch-callout: none;
 }
 
-/* 「もっと拡大」した状態。枠からはみ出した分はスクロール／ドラッグで見る */
-.lightbox-panel.is-zoomed .lightbox-stage { place-items: start; }
+/* 拡大した状態。枠からはみ出した分はスクロール／ドラッグで見る */
 .lightbox-panel.is-zoomed .lightbox-stage img {
   max-width: none;
   max-height: none;
@@ -863,6 +873,16 @@ button { font-family: inherit; cursor: pointer; }
   cursor: grab;
 }
 .lightbox-panel.is-zoomed .lightbox-stage.is-dragging img { cursor: grabbing; }
+
+/* 長押し中の反応（押していることが分かるように少しだけ沈ませる） */
+.lightbox-stage.is-pressing img { transform: scale(0.985); transition: transform 0.35s ease; }
+
+.lightbox-hint {
+  margin: 0;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--cream-dim);
+}
 
 .lightbox-bar {
   flex: none;

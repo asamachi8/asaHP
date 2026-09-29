@@ -15,6 +15,7 @@
   <nav class="site-nav" aria-label="サイト内ナビゲーション">
     <a href="index.html">HOME</a>
     <a href="about.html" class="is-current">ABOUT</a>
+    <a href="topics.html">TOPICS</a>
     <a href="contact.html">CONTACT</a>
   </nav>
 
@@ -59,11 +60,15 @@
 
   <div class="lightbox-panel" role="dialog" aria-modal="true" aria-label="添付物の拡大表示">
     <div class="lightbox-stage" id="lightboxStage">
-      <img id="lightboxImage" src="" alt="">
+      <!-- src は作品を開いたときに入ります（空の src は無駄な通信を起こすため書きません） -->
+      <img id="lightboxImage" alt="">
     </div>
 
     <div class="lightbox-bar">
-      <p class="lightbox-title" id="lightboxTitle"></p>
+      <div>
+        <p class="lightbox-title" id="lightboxTitle"></p>
+        <p class="lightbox-hint" id="lightboxHint">画像を長押しすると拡大できます</p>
+      </div>
       <div class="lightbox-actions">
         <button type="button" class="lightbox-btn" id="lightboxZoom">もっと拡大</button>
         <a class="lightbox-btn" id="lightboxLink" target="_blank" rel="noopener noreferrer" hidden>リンクを開く</a>
