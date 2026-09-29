@@ -38,9 +38,9 @@ window.SITE_CONFIG = {
     "layout": "vertical"
   },
   "topics": {
-    "title": "ぎんがむたんぽぽ・サロン広報",
+    "title": "ぎんがむたんぽぽ                                                                                      サロン広報",
     "kicker": "SALON BULLETIN",
-    "lead": "*:.。創作サロン・ぎんがむたんぽぽ 。.:*　の活動と　　　　　　　　　　　　　　　　　　　　　お知らせをお届けします。",
+    "lead": "創作サロン・ぎんがむたんぽぽの                                                                                                   活動とお知らせをお届けします。",
     "logo": {
       "image": "assets/images/サロン_ぎんがむたんぽぽロゴ透過.png",
       "width": 115,
