@@ -245,7 +245,11 @@ button { font-family: inherit; cursor: pointer; }
 .slot img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  /* 額縁に収める見せ方と、画像のどこを見せるか。
+     どちらも「ホームページ」ノートで展示ごとに調整でき、
+     スマホとPCで額縁の形が違うため、位置は別々に持たせています。 */
+  object-fit: var(--slot-fit, cover);
+  object-position: var(--slot-pos-mobile, 50% 50%);
 }
 
 .slot:hover,
@@ -344,6 +348,9 @@ button { font-family: inherit; cursor: pointer; }
 @media (min-width: 900px) and (min-aspect-ratio: 5/4) {
 
   body.page-main { overflow-x: hidden; }
+
+  /* PCでは額縁の形が変わるので、画像の見せる位置もPC用の設定に切り替える */
+  .slot img { object-position: var(--slot-pos-pc, 50% 50%); }
 
   .museum {
     container-type: inline-size;
@@ -1415,4 +1422,186 @@ a.member-image:focus-visible {
   font-weight: 700;
   letter-spacing: 0.06em;
   color: #fff6e2;
+}
+
+/* ============================================================
+   魔法のキラキラ（どの画像にも使える汎用エフェクト）
+   ------------------------------------------------------------
+   使い方：画像を包んでいる枠に magic-sparkle を付けるだけ。
+     <span class="member-image magic-sparkle">…<img …></span>
+   画像そのものには手を加えないので、中の画像を差し替えても
+   そのまま光り続けます。たんぽぽでも、バラでも、道具でも同じです。
+
+   光の粒12個と十字の輝き4つが、画像より一回り外側まで広がります。
+   画像や動画は一切読み込まず、CSSだけで描いています。
+   ============================================================ */
+
+.magic-sparkle {
+  position: relative;
+  /* 光が枠の外へ出られるようにする（.slot などの切り取りを解除） */
+  overflow: visible;
+
+  /* 光の色（淡い黄色〜アンティークゴールド） */
+  --sp-core: rgba(255, 248, 214, 0.95);
+  --sp-halo: rgba(240, 205, 116, 0.5);
+
+  --sp-opacity: 1;      /* 全体の明るさ */
+  --sp-dot: 13px;       /* 光の粒の大きさ */
+  --sp-star: 40px;      /* 十字の輝きの大きさ */
+  --sp-spread: 14%;     /* 画像の外側へどれだけはみ出して散らすか */
+  --sp-dots-time: 3.8s;
+  --sp-stars-time: 5.2s;
+}
+
+.magic-sparkle::before,
+.magic-sparkle::after {
+  content: "";
+  position: absolute;
+  /* 画像より一回り大きい範囲に光を散らす */
+  inset: calc(var(--sp-spread) * -1);
+  pointer-events: none;
+  opacity: var(--sp-opacity);
+  background-repeat: no-repeat;
+  /* 合成方法は既定のまま。screen などにすると、白っぽい絵の上で
+     光が消えてしまい「どの画像にも使える」ではなくなるため。 */
+}
+
+/* ---- 光の粒12個（ゆっくり明滅する） ----
+   6つひと組を2周ぶん並べています。組ごとに置き場所が違うので、
+   同じ瞬間に光る2粒は画像の反対側どうしになり、一斉点滅には見えません。 */
+.magic-sparkle::before {
+  --d1: var(--sp-dot);
+  --d2: calc(var(--sp-dot) * 0.72);
+  --d3: calc(var(--sp-dot) * 0.9);
+  --d4: calc(var(--sp-dot) * 0.62);
+  --d5: calc(var(--sp-dot) * 0.85);
+  --d6: calc(var(--sp-dot) * 0.7);
+  --f1: calc(var(--d1) * .4);
+  --f2: calc(var(--d2) * .4);
+  --f3: calc(var(--d3) * .4);
+  --f4: calc(var(--d4) * .4);
+  --f5: calc(var(--d5) * .4);
+  --f6: calc(var(--d6) * .4);
+
+  background-image:
+    radial-gradient(circle, var(--sp-core) 0%, var(--sp-halo) 38%, transparent 70%),
+    radial-gradient(circle, var(--sp-core) 0%, var(--sp-halo) 38%, transparent 70%),
+    radial-gradient(circle, var(--sp-core) 0%, var(--sp-halo) 38%, transparent 70%),
+    radial-gradient(circle, var(--sp-core) 0%, var(--sp-halo) 38%, transparent 70%),
+    radial-gradient(circle, var(--sp-core) 0%, var(--sp-halo) 38%, transparent 70%),
+    radial-gradient(circle, var(--sp-core) 0%, var(--sp-halo) 38%, transparent 70%),
+    radial-gradient(circle, var(--sp-core) 0%, var(--sp-halo) 38%, transparent 70%),
+    radial-gradient(circle, var(--sp-core) 0%, var(--sp-halo) 38%, transparent 70%),
+    radial-gradient(circle, var(--sp-core) 0%, var(--sp-halo) 38%, transparent 70%),
+    radial-gradient(circle, var(--sp-core) 0%, var(--sp-halo) 38%, transparent 70%),
+    radial-gradient(circle, var(--sp-core) 0%, var(--sp-halo) 38%, transparent 70%),
+    radial-gradient(circle, var(--sp-core) 0%, var(--sp-halo) 38%, transparent 70%);
+  /* 前半6つは内側寄り、後半6つは外周（はみ出した部分）に散らす */
+  background-position:
+    24% 28%, 70% 20%, 82% 52%, 36% 62%, 60% 72%, 17% 70%,
+    5% 12%, 93% 8%, 97% 78%, 50% 96%, 3% 90%, 88% 35%;
+  animation: sparkle-dots var(--sp-dots-time) ease-in-out infinite;
+}
+
+@keyframes sparkle-dots {
+  0%, 100% {
+    background-size:
+      var(--d1) var(--d1), var(--f2) var(--f2), 0 0, 0 0, 0 0, var(--f6) var(--f6),
+      var(--d1) var(--d1), var(--f2) var(--f2), 0 0, 0 0, 0 0, var(--f6) var(--f6);
+  }
+  17% {
+    background-size:
+      var(--f1) var(--f1), var(--d2) var(--d2), var(--f3) var(--f3), 0 0, 0 0, 0 0,
+      var(--f1) var(--f1), var(--d2) var(--d2), var(--f3) var(--f3), 0 0, 0 0, 0 0;
+  }
+  33% {
+    background-size:
+      0 0, var(--f2) var(--f2), var(--d3) var(--d3), var(--f4) var(--f4), 0 0, 0 0,
+      0 0, var(--f2) var(--f2), var(--d3) var(--d3), var(--f4) var(--f4), 0 0, 0 0;
+  }
+  50% {
+    background-size:
+      0 0, 0 0, var(--f3) var(--f3), var(--d4) var(--d4), var(--f5) var(--f5), 0 0,
+      0 0, 0 0, var(--f3) var(--f3), var(--d4) var(--d4), var(--f5) var(--f5), 0 0;
+  }
+  67% {
+    background-size:
+      0 0, 0 0, 0 0, var(--f4) var(--f4), var(--d5) var(--d5), var(--f6) var(--f6),
+      0 0, 0 0, 0 0, var(--f4) var(--f4), var(--d5) var(--d5), var(--f6) var(--f6);
+  }
+  83% {
+    background-size:
+      var(--f1) var(--f1), 0 0, 0 0, 0 0, var(--f5) var(--f5), var(--d6) var(--d6),
+      var(--f1) var(--f1), 0 0, 0 0, 0 0, var(--f5) var(--f5), var(--d6) var(--d6);
+  }
+}
+
+/* ---- 十字の輝き（ときどき「キラン」と光る） ----
+   十字1つを「横の筋・縦の筋・中心の光」の3枚で描いています。 */
+.magic-sparkle::after {
+  --s1: var(--sp-star);
+  --s2: calc(var(--sp-star) * 0.76);
+  --s3: calc(var(--sp-star) * 0.9);
+  --s4: calc(var(--sp-star) * 0.66);
+  --s1c: calc(var(--s1) * 0.42);
+  --s2c: calc(var(--s2) * 0.42);
+  --s3c: calc(var(--s3) * 0.42);
+  --s4c: calc(var(--s4) * 0.42);
+
+  background-image:
+    radial-gradient(ellipse 50% 6% at 50% 50%, var(--sp-core) 0%, rgba(255, 238, 178, 0.8) 22%, transparent 76%),
+    radial-gradient(ellipse 6% 50% at 50% 50%, var(--sp-core) 0%, rgba(255, 238, 178, 0.8) 22%, transparent 76%),
+    radial-gradient(circle, var(--sp-core) 0%, rgba(255, 230, 150, 0.6) 20%, transparent 48%),
+    radial-gradient(ellipse 50% 6% at 50% 50%, var(--sp-core) 0%, rgba(255, 238, 178, 0.8) 22%, transparent 76%),
+    radial-gradient(ellipse 6% 50% at 50% 50%, var(--sp-core) 0%, rgba(255, 238, 178, 0.8) 22%, transparent 76%),
+    radial-gradient(circle, var(--sp-core) 0%, rgba(255, 230, 150, 0.6) 20%, transparent 48%),
+    radial-gradient(ellipse 50% 6% at 50% 50%, var(--sp-core) 0%, rgba(255, 238, 178, 0.8) 22%, transparent 76%),
+    radial-gradient(ellipse 6% 50% at 50% 50%, var(--sp-core) 0%, rgba(255, 238, 178, 0.8) 22%, transparent 76%),
+    radial-gradient(circle, var(--sp-core) 0%, rgba(255, 230, 150, 0.6) 20%, transparent 48%),
+    radial-gradient(ellipse 50% 6% at 50% 50%, var(--sp-core) 0%, rgba(255, 238, 178, 0.8) 22%, transparent 76%),
+    radial-gradient(ellipse 6% 50% at 50% 50%, var(--sp-core) 0%, rgba(255, 238, 178, 0.8) 22%, transparent 76%),
+    radial-gradient(circle, var(--sp-core) 0%, rgba(255, 230, 150, 0.6) 20%, transparent 48%);
+  /* 2つは画像の上、2つは外周に置く */
+  background-position:
+    64% 30%, 64% 30%, 64% 30%,
+    28% 66%, 28% 66%, 28% 66%,
+    8% 20%, 8% 20%, 8% 20%,
+    92% 88%, 92% 88%, 92% 88%;
+  animation: sparkle-stars var(--sp-stars-time) ease-in-out infinite;
+}
+
+/* 4つの十字が、順ぐりに「キラン」と光ります */
+@keyframes sparkle-stars {
+  0%, 12%   { background-size: 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0; }
+  18%       { background-size: var(--s1) var(--s1), var(--s1) var(--s1), var(--s1c) var(--s1c), 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0; }
+  24%, 36%  { background-size: 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0; }
+  42%       { background-size: 0 0, 0 0, 0 0, var(--s2) var(--s2), var(--s2) var(--s2), var(--s2c) var(--s2c), 0 0, 0 0, 0 0, 0 0, 0 0, 0 0; }
+  48%, 60%  { background-size: 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0; }
+  66%       { background-size: 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, var(--s3) var(--s3), var(--s3) var(--s3), var(--s3c) var(--s3c), 0 0, 0 0, 0 0; }
+  72%, 84%  { background-size: 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0; }
+  90%       { background-size: 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, var(--s4) var(--s4), var(--s4) var(--s4), var(--s4c) var(--s4c); }
+  96%, 100% { background-size: 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0; }
+}
+
+/* 動きを減らす設定の人には、光をやさしく静止させる */
+@media (prefers-reduced-motion: reduce) {
+  .magic-sparkle::before,
+  .magic-sparkle::after {
+    animation: none;
+    opacity: calc(var(--sp-opacity) * 0.6);
+  }
+  .magic-sparkle::before {
+    background-size:
+      var(--d1) var(--d1), var(--d2) var(--d2), var(--d3) var(--d3),
+      var(--d4) var(--d4), var(--d5) var(--d5), var(--d6) var(--d6),
+      var(--d1) var(--d1), var(--d2) var(--d2), var(--d3) var(--d3),
+      var(--d4) var(--d4), var(--d5) var(--d5), var(--d6) var(--d6);
+  }
+  .magic-sparkle::after {
+    background-size:
+      var(--s1) var(--s1), var(--s1) var(--s1), var(--s1c) var(--s1c),
+      var(--s2) var(--s2), var(--s2) var(--s2), var(--s2c) var(--s2c),
+      var(--s3) var(--s3), var(--s3) var(--s3), var(--s3c) var(--s3c),
+      var(--s4) var(--s4), var(--s4) var(--s4), var(--s4c) var(--s4c);
+  }
 }

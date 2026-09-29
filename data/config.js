@@ -23,14 +23,15 @@ window.SITE_CONFIG = {
   "home": {
     "welcomeText": "ようこそ、幻想肖像画美術館へ",
     "logo": {
-      "image": "assets/images/蟷ｻ諠ｳ閧門ワ逕ｻ鄒手_馴_ｨ繝ｭ繧ｴ騾城__2.png",
+      "image": "assets/images/幻想肖像画美術館ロゴ透過.png",
       "widthMobile": 78,
       "widthPC": 27
     },
     "sideDecor": {
       "image": "assets/images/タンポポイラスト.png",
       "url": "topics.html",
-      "published": true
+      "published": true,
+      "sparkle": true
     }
   },
   "about": {
@@ -198,37 +199,103 @@ window.SITE_CONFIG = {
       "name": "Canvas Oracle",
       "image": "assets/images/キャンバスオラクル.jpg",
       "url": "https://asamachi8.github.io/canvas-oracle/",
-      "published": true
+      "published": true,
+      "view": {
+        "fit": "cover",
+        "mobile": {
+          "x": 50,
+          "y": 50
+        },
+        "pc": {
+          "x": 50,
+          "y": 50
+        }
+      }
     },
     {
       "name": "note",
       "image": "assets/images/フクロウ_大きな文字.jpg",
       "url": "https://note.com/asamachi_lab",
-      "published": true
+      "published": true,
+      "view": {
+        "fit": "cover",
+        "mobile": {
+          "x": 50,
+          "y": 50
+        },
+        "pc": {
+          "x": 50,
+          "y": 50
+        }
+      }
     },
     {
       "name": "LOOP BATTLE",
       "image": "assets/images/ループバトルイラスト1.jpg",
       "url": "https://asamachi8.github.io/Loop-Battle-v3/",
-      "published": true
+      "published": true,
+      "view": {
+        "fit": "cover",
+        "mobile": {
+          "x": 50,
+          "y": 50
+        },
+        "pc": {
+          "x": 50,
+          "y": 50
+        }
+      }
     },
     {
       "name": "Voice Works",
       "image": "assets/images/小野崎ふみ_浮遊相棒AI.png",
       "url": "https://x.com/asamachi_3",
-      "published": true
+      "published": true,
+      "view": {
+        "fit": "cover",
+        "mobile": {
+          "x": 50,
+          "y": 50
+        },
+        "pc": {
+          "x": 50,
+          "y": 50
+        }
+      }
     },
     {
       "name": "幻想肖像画美術館",
       "image": "assets/images/企画展_2.jpg",
       "url": "https://www.tiktok.com/@asamachi_3?_r=1&_t=ZS-9A72uFVV0nV",
-      "published": true
+      "published": true,
+      "view": {
+        "fit": "cover",
+        "mobile": {
+          "x": 50,
+          "y": 50
+        },
+        "pc": {
+          "x": 50,
+          "y": 50
+        }
+      }
     },
     {
       "name": "X",
       "image": "assets/images/水彩あさまち.jpg",
       "url": "https://x.com/asamachi_3",
-      "published": true
+      "published": true,
+      "view": {
+        "fit": "cover",
+        "mobile": {
+          "x": 50,
+          "y": 50
+        },
+        "pc": {
+          "x": 50,
+          "y": 50
+        }
+      }
     }
   ],
   "contact": {

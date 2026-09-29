@@ -48,6 +48,24 @@
   // ==========================================================
   // 活動展示（最大6枠、published:false は自動非表示）
   // ==========================================================
+  // 額縁のどこを見せるか（view）を、CSS変数として画像に渡す。
+  // スマホとPCで額縁の形が違うので、位置は2つ持たせ、
+  // どちらを使うかは css/style.css のメディアクエリが切り替える。
+  function applySlotView(img, view) {
+    view = view || {};
+    var m = view.mobile || {};
+    var p = view.pc || {};
+    img.style.setProperty("--slot-fit", view.fit === "contain" ? "contain" : "cover");
+    img.style.setProperty(
+      "--slot-pos-mobile",
+      (typeof m.x === "number" ? m.x : 50) + "% " + (typeof m.y === "number" ? m.y : 50) + "%"
+    );
+    img.style.setProperty(
+      "--slot-pos-pc",
+      (typeof p.x === "number" ? p.x : 50) + "% " + (typeof p.y === "number" ? p.y : 50) + "%"
+    );
+  }
+
   var MAX_EXHIBITS = 6;
   var gallery = document.getElementById("exhibitGallery");
   var exhibitList = document.getElementById("exhibitList");
@@ -73,6 +91,7 @@
         img.alt = "";
         img.loading = "lazy";
         img.decoding = "async";
+        applySlotView(img, ex.view);
         a.appendChild(img);
       }
 
@@ -108,7 +127,8 @@
       var decorTag = sideDecor.url ? "a" : "div";
       var decorEl = document.createElement(decorTag);
       decorEl.id = "sideDecorSlot";
-      decorEl.className = "slot side-decor";
+      // sparkle が入っていると、画像のまわりに魔法のキラキラが出る
+      decorEl.className = "slot side-decor" + (sideDecor.sparkle ? " magic-sparkle" : "");
       if (sideDecor.url) {
         decorEl.href = sideDecor.url;
         // サイト内のページ（topics.html など）は同じタブ、外部サイトは新しいタブで開く

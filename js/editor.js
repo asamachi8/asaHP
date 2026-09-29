@@ -51,7 +51,10 @@
       var decorBox = cur.sideDecor;
       var el = document.createElement("div");
       el.className = "box movable";
-      el.innerHTML = '<span class="box-label">椅子横の飾り画像</span><span class="handle"></span>';
+      // キラキラを入れているときは、枠の見出しに ✦ を付けて分かるようにする
+      var btn = document.getElementById("decorSparkleBtn");
+      var sparkleLabel = btn && btn.getAttribute("aria-pressed") === "true" ? "✦ " : "";
+      el.innerHTML = '<span class="box-label">' + sparkleLabel + '椅子横の飾り画像</span><span class="handle"></span>';
       // 画像が設定されていれば、枠の中に薄く表示して位置合わせしやすくする
       var decorImageEl = document.getElementById("decorImage");
       var decorImagePath = decorImageEl ? decorImageEl.value : "";
@@ -190,7 +193,7 @@
   var exhibitListEl = document.getElementById("exhibitList");
   var exhibits = (cfg.exhibits || []).slice(0, MAX_EXHIBITS);
   while (exhibits.length < MAX_EXHIBITS) {
-    exhibits.push({ name: "", image: "", url: "", published: false });
+    exhibits.push({ name: "", image: "", url: "", published: false, view: null });
   }
 
   function renderExhibitList() {
@@ -211,19 +214,62 @@
           '<div class="field"><label>展示名</label><input type="text" data-ex="name"></div>' +
           '<div class="field"><label>画像ファイル（空欄なら背景の絵をそのまま表示）</label><input type="text" data-ex="image" data-picker="images"></div>' +
         "</div>" +
-        '<div class="field"><label>クリック時に開くURL</label><input type="text" data-ex="url"></div>';
+        '<div class="field"><label>クリック時に開くURL</label><input type="text" data-ex="url"></div>' +
+        '<div class="view-tune">' +
+          '<div class="view-head">' +
+            "<span>額縁に表示される部分</span>" +
+            '<select data-ex="fit">' +
+              '<option value="cover">枠いっぱいに広げる（はみ出す部分は切れます）</option>' +
+              '<option value="contain">画像全体を入れる（まわりに余白ができます）</option>' +
+            "</select>" +
+            '<button type="button" class="btn" data-center>中央に戻す</button>' +
+          "</div>" +
+          '<div class="view-frames">' +
+            '<div class="view-frame-wrap"><span class="view-label">スマホ用</span>' +
+              '<div class="view-frame" data-view="mobile"><img alt=""></div></div>' +
+            '<div class="view-frame-wrap"><span class="view-label">PC用</span>' +
+              '<div class="view-frame" data-view="pc"><img alt=""></div></div>' +
+          "</div>" +
+          '<p class="view-hint">枠の中の画像をドラッグすると、見せたい部分を選べます。' +
+          "スマホ用とPC用は額縁の形が違うので、それぞれ別に調整できます。</p>" +
+        "</div>";
       exhibitListEl.appendChild(card);
 
       card.querySelector('[data-ex="published"]').checked = !!ex.published;
       card.querySelector('[data-ex="name"]').value = ex.name || "";
       card.querySelector('[data-ex="image"]').value = ex.image || "";
       card.querySelector('[data-ex="url"]').value = ex.url || "";
+      card.querySelector('[data-ex="fit"]').value =
+        (ex.view && ex.view.fit === "contain") ? "contain" : "cover";
+
+      // この展示の「見せる位置」。カードのDOMに持たせて、保存時に読み出す
+      card._view = normalizeView(ex.view);
+
+      setupViewTuner(card, i);
 
       card.querySelectorAll("input").forEach(function (input) {
         input.addEventListener("input", function () {
           exhibits[i] = readExhibitCard(card);
           markDirty();
         });
+      });
+
+      card.querySelector('[data-ex="image"]').addEventListener("input", function () {
+        refreshViewFrames(card);
+      });
+      card.querySelector('[data-ex="fit"]').addEventListener("change", function () {
+        card._view.fit = this.value;
+        exhibits[i] = readExhibitCard(card);
+        markDirty();
+        refreshViewFrames(card);
+      });
+      card.querySelector('[data-ex="published"]').addEventListener("change", refreshAllViewFrames);
+      card.querySelector("[data-center]").addEventListener("click", function () {
+        card._view.mobile = { x: 50, y: 50 };
+        card._view.pc = { x: 50, y: 50 };
+        exhibits[i] = readExhibitCard(card);
+        markDirty();
+        refreshViewFrames(card);
       });
 
       var upBtn = card.querySelector("[data-up]");
@@ -244,6 +290,7 @@
       });
 
       if (window.FilePicker) window.FilePicker.attachAll(card);
+      refreshViewFrames(card);
     });
   }
 
@@ -252,9 +299,154 @@
       name: card.querySelector('[data-ex="name"]').value,
       image: card.querySelector('[data-ex="image"]').value,
       url: card.querySelector('[data-ex="url"]').value,
-      published: card.querySelector('[data-ex="published"]').checked
+      published: card.querySelector('[data-ex="published"]').checked,
+      view: normalizeView(card._view)
     };
   }
+
+  // ---------------------------------------------------------------
+  // 額縁に表示される部分（スマホ用・PC用それぞれ）
+  // ---------------------------------------------------------------
+  function normalizeView(v) {
+    v = v || {};
+    function pt(p) {
+      p = p || {};
+      return {
+        x: typeof p.x === "number" ? p.x : 50,
+        y: typeof p.y === "number" ? p.y : 50
+      };
+    }
+    return {
+      fit: v.fit === "contain" ? "contain" : "cover",
+      mobile: pt(v.mobile),
+      pc: pt(v.pc)
+    };
+  }
+
+  // 公開している展示だけが額縁に入るので、その並び順が額縁の番号になる
+  function slotIndexOfCard(card) {
+    var cards = Array.prototype.slice.call(exhibitListEl.querySelectorAll(".item-card"));
+    var n = 0;
+    for (var k = 0; k < cards.length; k++) {
+      if (cards[k] === card) return n;
+      if (cards[k].querySelector('[data-ex="published"]').checked) n++;
+    }
+    return n;
+  }
+
+  // 額縁の見た目の縦横比（％指定の枠を、背景画像の比率で実寸に直す）
+  function slotAspect(which, slotIdx) {
+    var slots = (layoutState[which] && layoutState[which].slots) || [];
+    if (!slots.length) return 1;
+    var box = slots[Math.min(slotIdx, slots.length - 1)];
+    if (!box || !box.height) return 1;
+    return (box.width / box.height) * IMAGE_RATIO[which];
+  }
+
+  function refreshViewFrames(card) {
+    var path = card.querySelector('[data-ex="image"]').value;
+    var slotIdx = slotIndexOfCard(card);
+    var view = normalizeView(card._view);
+
+    card.querySelectorAll(".view-frame").forEach(function (frame) {
+      var which = frame.getAttribute("data-view");
+      frame.style.aspectRatio = String(slotAspect(which, slotIdx));
+
+      var img = frame.querySelector("img");
+      var empty = frame.querySelector(".view-empty");
+
+      if (!path) {
+        img.removeAttribute("src");
+        img.style.visibility = "hidden";
+        if (!empty) {
+          empty = document.createElement("span");
+          empty.className = "view-empty";
+          empty.textContent = "画像未設定";
+          frame.appendChild(empty);
+        }
+        frame.classList.add("is-locked");
+        return;
+      }
+
+      if (empty) empty.remove();
+      img.style.visibility = "";
+      var next = "../" + path;
+      if (img.getAttribute("src") !== next) img.src = next;
+      img.style.objectFit = view.fit;
+      img.style.objectPosition = view[which].x + "% " + view[which].y + "%";
+      // 画像全体を入れる設定のときは動かす余地がないので、ドラッグを止める
+      frame.classList.toggle("is-locked", view.fit === "contain");
+    });
+  }
+
+  function refreshAllViewFrames() {
+    exhibitListEl.querySelectorAll(".item-card").forEach(refreshViewFrames);
+  }
+
+  function setupViewTuner(card, index) {
+    card.querySelectorAll(".view-frame").forEach(function (frame) {
+      var which = frame.getAttribute("data-view");
+      var img = frame.querySelector("img");
+      var drag = null;
+
+      frame.addEventListener("pointerdown", function (e) {
+        if (frame.classList.contains("is-locked")) return;
+        if (!img.naturalWidth) return;
+
+        var box = frame.getBoundingClientRect();
+        // cover で拡大されたあとの画像の大きさと、枠からはみ出す量
+        var scale = Math.max(box.width / img.naturalWidth, box.height / img.naturalHeight);
+        var over = {
+          x: img.naturalWidth * scale - box.width,
+          y: img.naturalHeight * scale - box.height
+        };
+        if (over.x < 1 && over.y < 1) return; // 動かす余地がない
+
+        drag = {
+          id: e.pointerId,
+          sx: e.clientX,
+          sy: e.clientY,
+          from: { x: card._view[which].x, y: card._view[which].y },
+          over: over
+        };
+        frame.classList.add("is-dragging");
+        frame.setPointerCapture(e.pointerId);
+        e.preventDefault();
+      });
+
+      frame.addEventListener("pointermove", function (e) {
+        if (!drag || e.pointerId !== drag.id) return;
+        e.preventDefault();
+
+        // 指の動きぶんだけ画像がついてくるように、位置を逆向きに動かす
+        var v = card._view[which];
+        v.x = drag.over.x > 1
+          ? clamp(drag.from.x - ((e.clientX - drag.sx) / drag.over.x) * 100, 0, 100)
+          : 50;
+        v.y = drag.over.y > 1
+          ? clamp(drag.from.y - ((e.clientY - drag.sy) / drag.over.y) * 100, 0, 100)
+          : 50;
+
+        img.style.objectPosition = v.x + "% " + v.y + "%";
+      });
+
+      ["pointerup", "pointercancel"].forEach(function (type) {
+        frame.addEventListener(type, function () {
+          if (!drag) return;
+          drag = null;
+          frame.classList.remove("is-dragging");
+          card._view[which].x = Math.round(card._view[which].x * 10) / 10;
+          card._view[which].y = Math.round(card._view[which].y * 10) / 10;
+          exhibits[index] = readExhibitCard(card);
+          markDirty();
+        });
+      });
+
+      img.addEventListener("load", function () { refreshViewFrames(card); });
+    });
+  }
+
+  function clamp(n, min, max) { return Math.min(max, Math.max(min, n)); }
 
   function readExhibits() {
     // 画面に表示中の最新値を、カードの現在のDOM状態から取り直す
@@ -325,6 +517,26 @@
     document.getElementById(id).addEventListener("input", markDirty);
   });
 
+  // 魔法のキラキラ（押すたびに入／切が切り替わるボタン）
+  var sparkleBtn = document.getElementById("decorSparkleBtn");
+  var sparkleOn = !!decor.sparkle;
+
+  function paintSparkleBtn() {
+    sparkleBtn.textContent = "✦ 魔法のキラキラ：" + (sparkleOn ? "オン" : "オフ");
+    sparkleBtn.setAttribute("aria-pressed", sparkleOn ? "true" : "false");
+    sparkleBtn.style.borderColor = sparkleOn ? "#e9d9a8" : "";
+    sparkleBtn.style.color = sparkleOn ? "#ffeebb" : "";
+  }
+  paintSparkleBtn();
+  renderCanvas(); // ボタンの状態を枠の見出しに反映させる
+
+  sparkleBtn.addEventListener("click", function () {
+    sparkleOn = !sparkleOn;
+    paintSparkleBtn();
+    markDirty();
+    renderCanvas();
+  });
+
   // 画像を変えたら、配置プレビューの枠の中身も更新する
   document.getElementById("decorImage").addEventListener("input", renderCanvas);
 
@@ -334,7 +546,8 @@
     return {
       image: document.getElementById("decorImage").value,
       url: document.getElementById("decorUrl").value,
-      published: document.getElementById("decorPublished").checked
+      published: document.getElementById("decorPublished").checked,
+      sparkle: sparkleOn
     };
   }
 

@@ -63,6 +63,33 @@
   }
   .box.movable.active { background: rgba(255, 255, 255, 0.28); border-color: #fff; z-index: 5; }
   .box.movable .box-label { color: var(--text); }
+  /* 展示画像の「額縁に表示される部分」を調整する枠 */
+  .view-tune {
+    margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border);
+  }
+  .view-head { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 8px; }
+  .view-head > span { font-size: 11px; color: var(--dim); }
+  .view-head select {
+    background: var(--panel-2); border: 1px solid var(--border); color: var(--text);
+    padding: 5px 6px; border-radius: 3px; font-size: 12px; font-family: inherit;
+  }
+  .view-frames { display: flex; gap: 14px; flex-wrap: wrap; }
+  .view-frame-wrap { display: flex; flex-direction: column; gap: 4px; }
+  .view-label { font-size: 10px; color: var(--dim); }
+  .view-frame {
+    width: 108px; background: #000; overflow: hidden;
+    border: 1px solid var(--border); border-radius: 2px;
+    touch-action: none; cursor: grab; position: relative;
+  }
+  .view-frame.is-dragging { cursor: grabbing; border-color: var(--accent); }
+  .view-frame.is-locked { cursor: default; }
+  .view-frame img { width: 100%; height: 100%; display: block; pointer-events: none; }
+  .view-frame .view-empty {
+    position: absolute; inset: 0; display: grid; place-items: center;
+    font-size: 10px; color: var(--dim); text-align: center; padding: 4px;
+  }
+  .view-hint { margin: 8px 0 0; font-size: 11px; color: var(--dim); line-height: 1.7; }
+
   .box.movable .handle {
     position: absolute; right: -6px; bottom: -6px; width: 14px; height: 14px;
     background: var(--accent); border: 1px solid #000;
@@ -179,6 +206,14 @@
   <label style="font-size:12px; display:flex; align-items:center; gap:6px;">
     <input type="checkbox" id="decorPublished"> 公開する
   </label>
+
+  <div style="margin-top:12px;">
+    <button type="button" class="btn" id="decorSparkleBtn" aria-pressed="false">✦ 魔法のキラキラ：オフ</button>
+    <p class="lead" style="margin:6px 0 0;">
+      押すたびに切り替わります。オンにすると、この飾り画像に淡い黄色の光がまとわりつき、
+      枠より一回り外側までキラキラが広がります。画像を差し替えても、そのまま光り続けます。
+    </p>
+  </div>
 </section>
 
 <script src="../data/layout.js"></script>
