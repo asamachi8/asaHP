@@ -118,11 +118,11 @@ window.SITE_CONFIG = {
   },
   "voiceSamples": [
     {
-      "title": "サンプルボイス①",
+      "title": "AI学習音声「MAIKA」 造語楽曲　【 ♪ 深海理論 】　",
       "mediaType": "audio",
-      "src": "assets/audio/sample1.mp3",
-      "thumbnail": "assets/images/voice_sample_thumb.svg",
-      "published": false
+      "src": "assets/audio/深海理論MAIKA.mp3",
+      "thumbnail": "assets/images/MAIKAアイコン透過.png",
+      "published": true
     },
     {
       "title": "サンプルボイス②",
